@@ -4,6 +4,9 @@ import "./Adopt.css";
 export default class Adopt extends Component {
   constructor(props) {
     super(props);
+    this.updateTheShit = this.updateTheShit.bind(this);
+    this.handleAdopt = this.handleAdopt.bind(this);
+    this.handleSignup = this.handleSignup.bind(this);
     this.state = {
       listOfCats: [],
       listOfDogs: [],
@@ -69,7 +72,7 @@ export default class Adopt extends Component {
           headers: {
             "Content-Type": "application/json"
           }
-        })
+        }).then(() => this.updateTheShit())
       );
     }
   };
