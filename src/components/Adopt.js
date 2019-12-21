@@ -50,13 +50,17 @@ export default class Adopt extends Component {
   };
   handleSignup = e => {
     e.preventDefault();
+    let newName = this.state.signupName;
+    this.setState({ signupName: "" });
     fetch("http://localhost:8000/api/users/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(this.state.signupName)
-    }).then(() => this.updateTheShit());
+      body: JSON.stringify({ name: newName })
+    })
+      .then(response => response.json())
+      .then(data => this.setState({ listOfUsers: data }));
   };
   handleAdopt = (e, type) => {
     e.preventDefault();
@@ -74,6 +78,29 @@ export default class Adopt extends Component {
           }
         }).then(() => this.updateTheShit())
       );
+    } else if (type === "both") {
+      fetch(`http://localhost:8000/api/pets/cats/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+        .then(
+          fetch(`http://localhost:8000/api/pets/dogs/`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+        )
+        .then(
+          fetch("http://localhost:8000/api/users/", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then(() => this.updateTheShit())
+        );
     }
   };
 
@@ -137,20 +164,28 @@ export default class Adopt extends Component {
         <section className="signup-container">
           <form className="signup-form" onSubmit={e => this.handleSignup(e)}>
             <input
+              id="user-input-box"
               type="text"
               placeholder="Your name here"
               onChange={e => this.nameHandler(e)}
               value={this.state.signupName}
             />
             <button className="signup-button">Get in line!</button>
-            <p>Next up: {this.state.currUser.name}</p>
+            <p>
+              Next up:
+              {this.state.listOfUsers.length > 0
+                ? ` ${this.state.currUser.name}`
+                : " No one is in line!"}
+            </p>
           </form>
         </section>
         <section className="users-container">
           <ul className="list-of-users">
-            {this.state.listOfUsers.map(i => (
-              <li key={i.id}>{i.name}</li>
-            ))}
+            {this.state.listOfUsers.length > 0 ? (
+              this.state.listOfUsers.map(i => <li key={i.name}>{i.name}</li>)
+            ) : (
+              <></>
+            )}
           </ul>
         </section>
       </section>
